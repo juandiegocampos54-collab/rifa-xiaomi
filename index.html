@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rifa Scooter Eléctrico Xiaomi</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta name="description" content="Rifa de scooter eléctrico Xiaomi. 100 números, ₡5.000 cada uno. Sorteo 20 de diciembre con el Gordo Navideño.">
+<style>
+:root{--navy:#06263b;--navy2:#0b3550;--green:#16a34a;--yellow:#f7c515;--red:#ef3340;--bg:#f4f7fa;--card:#fff;--muted:#64748b}
+*{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:#102a43}
+header{background:linear-gradient(135deg,#06263b,#0b486b);color:white;padding:28px 18px}
+.wrap{max-width:1180px;margin:auto}.hero{display:grid;grid-template-columns:1.5fr .8fr;gap:24px;align-items:center}
+.badge{display:inline-block;background:var(--yellow);color:#16202a;font-weight:800;padding:8px 12px;border-radius:999px}
+h1{font-size:clamp(34px,6vw,64px);margin:14px 0 8px;line-height:.95} .hero p{font-size:19px;opacity:.92}
+.stats{background:#062236;border:1px solid #1b587a;border-radius:20px;padding:20px}
+.stat{padding:12px 0;border-bottom:1px solid #2b5870}.stat:last-child{border:0}.stat b{font-size:22px}
+main{padding:24px 18px}.grid{display:grid;grid-template-columns:1.3fr .7fr;gap:22px}
+.card{background:var(--card);border-radius:18px;padding:20px;box-shadow:0 5px 20px #0b355012;border:1px solid #dce5ec}
+h2{margin-top:0}.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:14px;margin:12px 0 18px}
+.dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px}.available{background:var(--green)}.reserved{background:var(--yellow)}.sold{background:var(--red)}
+.numbers{display:grid;grid-template-columns:repeat(10,1fr);gap:8px}.num{border:0;border-radius:10px;padding:12px 3px;font-weight:800;color:white;cursor:pointer;font-size:16px}.num.available{background:var(--green)}.num.reserved{background:var(--yellow);color:#222}.num.sold{background:var(--red);cursor:not-allowed}.num.selected{outline:4px solid #0b355055;transform:scale(1.04)}
+label{display:block;font-weight:700;margin:12px 0 6px}input,textarea,select{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;font-size:16px}
+button.primary{width:100%;border:0;background:var(--green);color:white;padding:14px;border-radius:10px;font-weight:800;font-size:16px;cursor:pointer;margin-top:12px}
+button.secondary{border:0;background:#e8eef3;padding:10px;border-radius:9px;cursor:pointer;font-weight:700}
+.notice{background:#eff8ff;border-left:4px solid #1677b8;padding:12px;border-radius:8px;margin-top:14px}
+.success{display:none;background:#eaf8ef;border:1px solid #a7dfba;padding:14px;border-radius:10px;margin-top:14px}
+.admin{margin-top:22px}.admin table{width:100%;border-collapse:collapse;font-size:14px}.admin th,.admin td{padding:9px;border-bottom:1px solid #e2e8f0;text-align:left}
+footer{background:#06263b;color:white;padding:24px;text-align:center;margin-top:20px}
+.small{font-size:13px;color:var(--muted)}.price{font-size:30px;font-weight:900}.whatsapp{display:inline-block;margin-top:10px;color:#087f35;font-weight:800}
+@media(max-width:850px){.hero,.grid{grid-template-columns:1fr}.numbers{grid-template-columns:repeat(5,1fr)}h1{font-size:44px}}
+</style>
+</head>
+<body>
+<header><div class="wrap hero">
+<div>
+<span class="badge">🎟️ RIFA</span>
+<h1>Scooter Eléctrico Xiaomi</h1>
+<p>Tu próximo destino está en dos ruedas.</p>
+<p><strong>100 números · ₡5.000 cada uno · Sorteo 20 de diciembre con el Gordo Navideño</strong></p>
+</div>
+<div class="stats">
+<div class="stat">🔢 <b>00–99</b><br><span>100 números disponibles</span></div>
+<div class="stat">💰 <b>₡5.000</b><br><span>por número</span></div>
+<div class="stat">📲 <b>SINPE 8705-5035</b><br><span>Comprobante obligatorio</span></div>
+</div>
+</div></header>
+
+<main class="wrap">
+<div class="grid">
+<section class="card">
+<h2>Selecciona tu número</h2>
+<div class="legend">
+<span><i class="dot available"></i>Disponible</span>
+<span><i class="dot reserved"></i>Reservado</span>
+<span><i class="dot sold"></i>Vendido</span>
+</div>
+<div id="numbers" class="numbers"></div>
+<p class="small">Los estados mostrados aquí son de demostración local. Para una rifa real se conectarán a una base de datos.</p>
+</section>
+
+<section class="card">
+<h2>Comprar número</h2>
+<div class="price">₡5.000</div>
+<label>Número seleccionado</label>
+<input id="selected" readonly placeholder="Selecciona un número">
+<label>Nombre completo</label>
+<input id="name" placeholder="Tu nombre completo">
+<label>Teléfono / WhatsApp</label>
+<input id="phone" placeholder="Ej. 8888-8888">
+<label>Comprobante de SINPE</label>
+<input id="receipt" type="file" accept="image/*,.pdf">
+<div class="notice"><strong>SINPE Móvil:</strong> 8705-5035<br>Realiza el pago de ₡5.000 y adjunta el comprobante.</div>
+<button class="primary" onclick="reserveNumber()">Reservar número</button>
+<div id="success" class="success"></div>
+<a class="whatsapp" href="https://wa.me/50687055035" target="_blank">💬 Consultar por WhatsApp</a>
+</section>
+</div>
+
+<section class="card admin" id="adminCard">
+<h2>Administrador</h2>
+<div id="loginBox">
+<p class="small">Inicia sesión con el usuario creado en Supabase.</p>
+<label>Correo</label>
+<input id="adminEmail" type="email" autocomplete="username" placeholder="correo del administrador">
+<label>Contraseña</label>
+<input id="adminPassword" type="password" autocomplete="current-password" placeholder="contraseña">
+<button class="primary" id="loginBtn" type="button" onclick="loginAdmin()">Iniciar sesión</button>
+<div id="loginMessage" class="notice" style="display:none"></div>
+</div>
+<div id="adminPanel" style="display:none">
+<p class="small">Sesión de administrador activa.</p>
+<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+<button class="secondary" type="button" onclick="signOutAdmin()">Cerrar sesión</button>
+<button class="secondary" type="button" onclick="resetDemo()">Restablecer demo</button>
+<button class="secondary" type="button" onclick="exportData()">Exportar registros</button>
+</div>
+<div style="overflow:auto"><table><thead><tr><th>Número</th><th>Cliente</th><th>Teléfono</th><th>Estado</th><th>Acción</th></tr></thead><tbody id="adminRows"></tbody></table></div>
+</div>
+</section>
+
+<section class="card" style="margin-top:22px">
+<h2>¿Cómo funciona?</h2>
+<p>1️⃣ Elige un número → 2️⃣ Realiza el SINPE → 3️⃣ Envía el comprobante → 4️⃣ Se verifica el pago → 5️⃣ El número pasa a vendido → 6️⃣ Participas en el sorteo.</p>
+</section>
+</main>
+<footer>🛴 Rifa Scooter Eléctrico Xiaomi · ¡Buena suerte!<br><span class="small" style="color:#d7e5ee">Versión inicial de demostración</span></footer>
+
+<script>
+const KEY="rifa_xiaomi_demo_v1";
+const SUPABASE_URL="https://yxrlfmamfgpjtjgkdgfm.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY="sb_publishable_mFzO8ZdJUT5NOgl0ZAgyOg_ocq4IUQh";
+const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+let data=JSON.parse(localStorage.getItem(KEY)||"null")||{numbers:{},orders:[]};
+let selected=null;
+
+async function loginAdmin(){
+ const email=document.getElementById("adminEmail").value.trim();
+ const password=document.getElementById("adminPassword").value;
+ const msg=document.getElementById("loginMessage");
+ const btn=document.getElementById("loginBtn");
+ if(!email||!password){msg.style.display="block";msg.textContent="Escribe el correo y la contraseña.";return;}
+ btn.disabled=true; btn.textContent="Iniciando sesión…"; msg.style.display="none";
+ try{
+   const {data:authData,error}=await supabaseClient.auth.signInWithPassword({email,password});
+   if(error) throw error;
+   document.getElementById("loginBox").style.display="none";
+   document.getElementById("adminPanel").style.display="block";
+   renderAdmin();
+ }catch(e){
+   msg.style.display="block";
+   msg.textContent="No se pudo iniciar sesión: "+(e.message||"revisa el correo y la contraseña.");
+ }finally{btn.disabled=false;btn.textContent="Iniciar sesión";}
+}
+async function signOutAdmin(){
+ await supabaseClient.auth.signOut();
+ document.getElementById("adminPanel").style.display="none";
+ document.getElementById("loginBox").style.display="block";
+ document.getElementById("adminPassword").value="";
+}
+async function restoreAdminSession(){
+ const {data:sessionData}=await supabaseClient.auth.getSession();
+ if(sessionData.session){
+   document.getElementById("loginBox").style.display="none";
+   document.getElementById("adminPanel").style.display="block";
+ }
+}
+
+
+function status(n){return data.numbers[String(n)]||"available"}
+function save(){localStorage.setItem(KEY,JSON.stringify(data))}
+function render(){
+ const box=document.getElementById("numbers"); box.innerHTML="";
+ for(let n=0;n<100;n++){
+  const b=document.createElement("button"), s=status(n);
+  b.className="num "+s+(selected===n?" selected":"");
+  b.textContent=String(n).padStart(2,"0");
+  b.disabled=s==="sold";
+  b.onclick=()=>{selected=n;document.getElementById("selected").value=String(n).padStart(2,"0");render()};
+  box.appendChild(b);
+ }
+ renderAdmin();
+}
+function reserveNumber(){
+ if(selected===null)return alert("Selecciona primero un número.");
+ const name=document.getElementById("name").value.trim(), phone=document.getElementById("phone").value.trim(), file=document.getElementById("receipt").files[0];
+ if(!name||!phone||!file)return alert("Completa nombre, teléfono y comprobante.");
+ if(status(selected)!=="available")return alert("Ese número ya no está disponible.");
+ data.numbers[String(selected)]="reserved";
+ data.orders.push({id:Date.now(),number:selected,name,phone,file:file.name,status:"reserved"});
+ save();
+ document.getElementById("success").style.display="block";
+ document.getElementById("success").innerHTML="✅ Solicitud recibida. El número <strong>"+String(selected).padStart(2,"0")+"</strong> quedó reservado. En una versión conectada, aquí se enviaría el comprobante al administrador.";
+ selected=null;document.getElementById("selected").value="";document.getElementById("name").value="";document.getElementById("phone").value="";document.getElementById("receipt").value="";
+ render();
+}
+function renderAdmin(){
+ const body=document.getElementById("adminRows"); body.innerHTML="";
+ data.orders.slice().reverse().forEach(o=>{
+  const tr=document.createElement("tr");
+  tr.innerHTML=`<td><b>${String(o.number).padStart(2,"0")}</b></td><td>${escapeHtml(o.name)}</td><td>${escapeHtml(o.phone)}</td><td>${o.status}</td><td><button class="secondary" onclick="confirmSale(${o.id})">Confirmar venta</button> <button class="secondary" onclick="releaseNumber(${o.id})">Liberar</button></td>`;
+  body.appendChild(tr);
+ });
+}
+function confirmSale(id){const o=data.orders.find(x=>x.id===id);if(!o)return;o.status="sold";data.numbers[String(o.number)]="sold";save();render()}
+function releaseNumber(id){const o=data.orders.find(x=>x.id===id);if(!o)return;o.status="released";delete data.numbers[String(o.number)];save();render()}
+function resetDemo(){if(confirm("¿Restablecer toda la demostración?")){data={numbers:{},orders:[]};save();render()}}
+function exportData(){const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="rifa-registros.json";a.click()}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]))}
+render();
+restoreAdminSession();
+</script>
+</body>
+</html>
